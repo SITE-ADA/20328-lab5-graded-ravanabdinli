@@ -98,4 +98,65 @@ public class EventController {
         }
     }
 
+    @GetMapping("/filter/date")
+    public ResponseEntity<List<Event>> filterByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+
+        try {
+            return new ResponseEntity<>(eventService.getEventsByDateRange(start, end), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/filter/price")
+    public ResponseEntity<List<Event>> filterByPrice(
+            @RequestParam BigDecimal min,
+            @RequestParam BigDecimal max) {
+
+        try {
+            return new ResponseEntity<>(eventService.getEventsByPriceRange(min, max), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/filter/tag")
+    public ResponseEntity<List<Event>> filterByTag(@RequestParam String tag) {
+        try {
+            return new ResponseEntity<>(eventService.getEventsByTag(tag), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Event>> upcoming() {
+        try {
+            return new ResponseEntity<>(eventService.getUpcomingEvents(), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/{id}/price")
+    public ResponseEntity<Event> updatePrice(
+            @PathVariable UUID id,
+            @RequestParam BigDecimal price) {
+
+        try {
+            Event updated = eventService.updateEventPrice(id, price);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {   // negative price
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        } catch (RuntimeException e) {           // not found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

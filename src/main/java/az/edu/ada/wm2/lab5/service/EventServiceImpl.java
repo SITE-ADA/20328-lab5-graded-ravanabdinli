@@ -85,27 +85,46 @@ public class EventServiceImpl implements EventService {
     // Custom methods
     @Override
     public List<Event> getEventsByTag(String tag) {
-        return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getTags() != null && e.getTags().contains(tag))
+                .collect(Collectors.toList());
     }
 
-    @Override
     public List<Event> getUpcomingEvents() {
-        return List.of();
+        LocalDateTime now = LocalDateTime.now();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getEventDateTime() != null &&
+                        e.getEventDateTime().isAfter(now))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Event> getEventsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
-       return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getTicketPrice() != null)
+                .filter(e -> e.getTicketPrice().compareTo(minPrice) >= 0 &&
+                        e.getTicketPrice().compareTo(maxPrice) <= 0)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Event> getEventsByDateRange(LocalDateTime start, LocalDateTime end) {
-        return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getEventDateTime() != null)
+                .filter(e -> !e.getEventDateTime().isBefore(start) &&
+                        !e.getEventDateTime().isAfter(end))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Event updateEventPrice(UUID id, BigDecimal newPrice) {
-        return null;
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+                throw new RuntimeException("Negative Price");
+            }
+        Event event = getEventById(id);
+        event.setTicketPrice(newPrice);
+        return eventRepository.save(event);
+
     }
 
 }
