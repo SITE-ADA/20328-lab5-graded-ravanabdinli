@@ -106,9 +106,14 @@ public class EventServiceImpl implements EventService {
                         e.getTicketPrice().compareTo(maxPrice) <= 0)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<Event> getEventsByDateRange(LocalDateTime start, LocalDateTime end) {
-        return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getEventDateTime() != null)
+                .filter(e -> !e.getEventDateTime().isBefore(start) &&
+                        !e.getEventDateTime().isAfter(end))
+                .collect(Collectors.toList());
     }
 
     @Override
