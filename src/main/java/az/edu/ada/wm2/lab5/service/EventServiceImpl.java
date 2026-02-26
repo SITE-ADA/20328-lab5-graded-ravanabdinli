@@ -118,9 +118,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event updateEventPrice(UUID id, BigDecimal newPrice) {
+        if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+                throw new RuntimeException("Negative Price");
+            }
         Event event = getEventById(id);
         event.setTicketPrice(newPrice);
         return eventRepository.save(event);
+
     }
 
 }
