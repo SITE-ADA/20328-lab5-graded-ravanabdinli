@@ -100,9 +100,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> getEventsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
-       return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e.getTicketPrice() != null)
+                .filter(e -> e.getTicketPrice().compareTo(minPrice) >= 0 &&
+                        e.getTicketPrice().compareTo(maxPrice) <= 0)
+                .collect(Collectors.toList());
     }
-
     @Override
     public List<Event> getEventsByDateRange(LocalDateTime start, LocalDateTime end) {
         return List.of();
