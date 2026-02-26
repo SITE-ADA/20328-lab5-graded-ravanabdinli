@@ -146,12 +146,17 @@ public class EventController {
             @RequestParam BigDecimal price) {
 
         try {
-            return new ResponseEntity<>(eventService.updateEventPrice(id, price), HttpStatus.OK);
-        } catch (RuntimeException e) {
+            Event updated = eventService.updateEventPrice(id, price);
+            return new ResponseEntity<>(updated, HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {   // negative price
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        } catch (RuntimeException e) {           // not found
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
 }
